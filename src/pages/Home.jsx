@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Header, Footer } from '../components/layout';
+import axios from "axios";
 import './home.scss';
 
 const Home = () => {
   const [articles, setArticles] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [articlesPerPage] = useState(10);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('trump');
   const [category, setCategory] = useState('business');
   const [sortBy, setSortBy] = useState('publishedAt');
   const [fromDate, setFromDate] = useState('');
@@ -16,47 +16,53 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
-  const API_KEY = 'c0a423aba69543328776600af0318700';
-  
-  const fetchArticles = useCallback(async () => {
-    if (!searchQuery.trim() && !category.trim()) return;
+
+
+  const fetchArticles = async () => {
+    if (!searchQuery.trim() && !category.trim()) return; 
 
     setLoading(true);
     let url = '';
+    const apiKey = 'c0a423aba69543328776600af0318700'; 
 
     if (searchQuery.trim()) {
-      url = `https://newsapi.org/v2/everything?q=${searchQuery}&sortBy=${sortBy}&from=${fromDate}&to=${toDate}&apiKey=${API_KEY}`;
+      url = `https://newsapi.org/v2/everything?q=${searchQuery}&sortBy=${sortBy}&from=${fromDate}&to=${toDate}&apiKey=${apiKey}`;
     } else if (category.trim()) {
-      url = `https://newsapi.org/v2/top-headlines?category=${category}&sortBy=${sortBy}&apiKey=${API_KEY}`;
+      url = `https://newsapi.org/v2/top-headlines?category=${category}&sortBy=${sortBy}&apiKey=${apiKey}`;
+    } else {
+      url = `https://newsapi.org/v2/everything?q=${searchQuery}&sortBy=${sortBy}&from=${fromDate}&to=${toDate}&apiKey=${apiKey}`;
     }
 
     try {
-      const response = await axios.get(url);
-      setArticles(response.data.articles || []);
+      const response = await axios(url);
+      const data = await response.json();
+      setArticles(data.articles); 
     } catch (error) {
-      console.error('Error fetching articles:', error);
+      console.error('Error fetching the articles:', error);
     } finally {
-      setLoading(false);
+      setLoading(false); 
     }
-  }, [searchQuery, category, sortBy, fromDate, toDate]);
+  };
+
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
-    const query = queryParams.get('q') || '';
-    const sortOption = queryParams.get('sortBy') || 'publishedAt';
-    const from = queryParams.get('from') || '';
-    const to = queryParams.get('to') || '';
+    const query = queryParams.get('q') || ''; 
+    const sortOption = queryParams.get('sortBy') || 'publishedAt'; 
+    const from = queryParams.get('from') || ''; 
+    const to = queryParams.get('to') || ''; 
 
     setSearchQuery(query);
     setSortBy(sortOption);
     setFromDate(from);
     setToDate(to);
-    setCurrentPage(1);
+    setCurrentPage(1);  
   }, [location.search]);
 
+
   useEffect(() => {
-    fetchArticles();
-  }, [fetchArticles]);
+    fetchArticles(); 
+  }, [searchQuery, category, sortBy, fromDate, toDate]); 
 
   // Pagination Logic
   const indexOfLastArticle = currentPage * articlesPerPage;
@@ -64,14 +70,25 @@ const Home = () => {
   const currentArticles = articles.slice(indexOfFirstArticle, indexOfLastArticle);
   const totalPages = Math.ceil(articles.length / articlesPerPage);
 
+  // Paginate handler
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Handle search form submit
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim() !== '') {
+     
+      setCurrentPage(1);  // Reset to first page on new search
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <Header />
 
       <main className="flex-grow container mx-auto p-4">
-        <form className="search-form mb-6 flex items-center">
+ 
+        <form onSubmit={handleSearchSubmit} className="search-form mb-6 flex items-center">
           <input
             type="text"
             value={searchQuery}
@@ -80,6 +97,7 @@ const Home = () => {
             placeholder="Search for news..."
           />
 
+       
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
@@ -94,6 +112,7 @@ const Home = () => {
             <option value="technology">Technology</option>
           </select>
 
+       
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
@@ -104,6 +123,7 @@ const Home = () => {
             <option value="popularity">Popularity</option>
           </select>
 
+        
           <input
             type="date"
             value={fromDate}
@@ -119,11 +139,15 @@ const Home = () => {
             placeholder="To Date"
           />
 
-          <button type="submit" className="bg-blue-500 text-white px-4 py-2 mt-2 ml-4 rounded-lg">
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 mt-2 ml-4 rounded-lg"
+          >
             Search
           </button>
         </form>
 
+    
         <div className="commonstory three_plus_two_collum mt-12">
           <h2 className="text-3xl font-bold text-center mb-8">Latest News</h2>
 
@@ -159,11 +183,16 @@ const Home = () => {
           )}
         </div>
 
+     
         <div className="flex justify-center mt-6">
           <nav aria-label="Page navigation">
             <ul className="pagination flex flex-wrap space-x-2">
               <li>
-                <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50">
+                <button
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50"
+                >
                   Previous
                 </button>
               </li>
@@ -178,7 +207,11 @@ const Home = () => {
                 </li>
               ))}
               <li>
-                <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50">
+                <button
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50"
+                >
                   Next
                 </button>
               </li>
