@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Header, Footer } from '../components/layout';
-import axios from "axios";
 import './home.scss';
 
 const Home = () => {
@@ -23,7 +22,7 @@ const Home = () => {
 
     setLoading(true);
     let url = '';
-    const apiKey = 'c0a423aba69543328776600af0318700'; 
+    const apiKey = '37811e138a2448cdb635bfde2f9dc1ef'; 
 
     if (searchQuery.trim()) {
       url = `https://newsapi.org/v2/everything?q=${searchQuery}&sortBy=${sortBy}&from=${fromDate}&to=${toDate}&apiKey=${apiKey}`;
@@ -34,7 +33,7 @@ const Home = () => {
     }
 
     try {
-      const response = await axios(url);
+      const response = await fetch(url);
       const data = await response.json();
       setArticles(data.articles); 
     } catch (error) {
