@@ -1,0 +1,152 @@
+/* General Styles */
+.header {
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logo-img {
+  width: 50px;
+  height: auto;
+  margin-right: 10px;
+}
+
+.logo-text {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+}
+
+.hamburger-icon {
+  display: none;
+  cursor: pointer;
+  font-size: 30px;
+  color: rgb(39, 38, 38);
+}
+
+.hamburger-icon-bar {
+  font-size: 30px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.hamburger-icon-bar.active {
+  transform: rotate(90deg); /* Rotate the icon when the menu is open */
+}
+
+.nav {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-list {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-item select {
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.nav-item select:focus {
+  outline: none;
+  border-color: #ccc;
+}
+
+.nav-item.dropdown {
+  display: inline-block;
+}
+
+.nav-item .dropdown-content {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #ffffff;
+  display: none;
+  border-radius: 5px;
+  z-index: 100;
+  width: 100%;
+}
+
+.nav-item:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown-content select {
+  width: 150px;
+  margin: 5px 0;
+}
+
+@media (max-width: 768px) {
+  .hamburger-icon {
+    display: block;
+  }
+
+  .nav {
+    display: none; /* Hide menu by default on mobile */
+    flex-direction: column;
+    width: 100%;
+    padding: 20px 0;
+    background-color: #ffffff;
+    position: absolute;
+    top: 60px; /* Adjust for header height */
+    left: 0;
+    z-index: 10;
+  }
+
+  .nav.show {
+    display: flex; /* Show menu when the 'show' class is added */
+  }
+
+  .nav-list {
+    flex-direction: column;
+    width: 100%;
+    padding-left: 0;
+    gap: 15px;
+  }
+
+  .nav-item {
+    width: 100%;
+  }
+
+  .dropdown-content {
+    position: static;
+    display: block; /* Always display dropdown content on mobile */
+    padding: 0;
+  }
+
+  .dropdown-content select {
+    width: 100%;
+    padding: 10px;
+  }
+}

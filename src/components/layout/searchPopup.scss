@@ -1,0 +1,114 @@
+/* Modal Styles */
+.searchPopup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .searchPopup.active {
+    display: flex;
+  }
+  
+  .searchPopcenter {
+    background-color: white;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 500px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .container {
+    position: relative;
+  }
+  
+  #closeMenus {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+  }
+  
+  #closeMenus svg {
+    width: 24px;
+    height: 24px;
+    fill: #000;
+  }
+  
+  .searchMenu_Header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .search_bx {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .s_input {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 80%;
+  }
+  
+  .s_button {
+    padding: 8px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    margin-left: 10px;
+    cursor: pointer;
+  }
+  
+  .s_button i {
+    font-size: 18px;
+  }
+  
+  .TagSearchesItems {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  
+  .TagSearchesItems a {
+    text-decoration: none;
+    color: #007bff;
+    font-size: 14px;
+    padding: 5px 10px;
+    border: 1px solid #007bff;
+    border-radius: 20px;
+  }
+  
+  .TagSearchesItems a:hover {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .searchPopup {
+      padding: 10px;
+    }
+  
+    .searchPopcenter {
+      width: 90%;
+      padding: 10px;
+    }
+  
+    .s_input {
+      width: 70%;
+    }
+  }
+  

@@ -1,17 +1,19 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Header from "./Header"; // Import Header component
-import SimpleForm from "./SimpleForm"; // Import the form component
+import React from 'react'; // Ensure this is added at the top of your file
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+
+
 
 function App() {
   return (
     <Router>
-      <Header />
-      <div className="p-6">
-        <Routes>
-          <Route path="/" element={<h1 className="text-center text-3xl font-bold">Home Page</h1>} />
-          <Route path="/about" element={<h1 className="text-center text-3xl font-bold">About Us</h1>} />
-          <Route path="/contact" element={<SimpleForm />} />
-        </Routes>
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Home />} />
+          </Routes>
+        </main>
+      
       </div>
     </Router>
   );
