@@ -7,7 +7,7 @@ const Home = () => {
   const [articles, setArticles] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [articlesPerPage] = useState(10);
-  const [searchQuery, setSearchQuery] = useState('trump');
+  const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState('business');
   const [sortBy, setSortBy] = useState('publishedAt');
   const [fromDate, setFromDate] = useState('');
