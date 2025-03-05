@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Header, Footer } from '../components/layout';
 import './home.scss';
 
@@ -13,81 +13,65 @@ const Home = () => {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
   const location = useLocation();
+  const API_KEY = '37811e138a2448cdb635bfde2f9dc1ef';
 
-
+  // ✅ Memoized API URL to prevent unnecessary re-renders
+  const apiUrl = useMemo(() => {
+    if (searchQuery.trim()) {
+      return `https://newsapi.org/v2/everything?q=${searchQuery}&sortBy=${sortBy}&from=${fromDate}&to=${toDate}&apiKey=${API_KEY}`;
+    } 
+    return `https://newsapi.org/v2/top-headlines?category=${category}&sortBy=${sortBy}&apiKey=${API_KEY}`;
+  }, [searchQuery, category, sortBy, fromDate, toDate]);
 
   const fetchArticles = async () => {
-    if (!searchQuery.trim() && !category.trim()) return; 
-
     setLoading(true);
-    let url = '';
-    const apiKey = '37811e138a2448cdb635bfde2f9dc1ef'; 
-
-    if (searchQuery.trim()) {
-      url = `https://newsapi.org/v2/everything?q=${searchQuery}&sortBy=${sortBy}&from=${fromDate}&to=${toDate}&apiKey=${apiKey}`;
-    } else if (category.trim()) {
-      url = `https://newsapi.org/v2/top-headlines?category=${category}&sortBy=${sortBy}&apiKey=${apiKey}`;
-    } else {
-      url = `https://newsapi.org/v2/everything?q=${searchQuery}&sortBy=${sortBy}&from=${fromDate}&to=${toDate}&apiKey=${apiKey}`;
-    }
-
+    setError(null);
+    
     try {
-      const response = await fetch(url);
+      const response = await fetch(apiUrl);
       const data = await response.json();
-      setArticles(data.articles); 
-    } catch (error) {
-      console.error('Error fetching the articles:', error);
+      if (data.status === 'error') {
+        throw new Error(data.message);
+      }
+      setArticles(data.articles || []);
+    } catch (err) {
+      console.error('Error fetching articles:', err);
+      setError('Failed to load articles. Please try again.');
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
-
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
-    const query = queryParams.get('q') || ''; 
-    const sortOption = queryParams.get('sortBy') || 'publishedAt'; 
-    const from = queryParams.get('from') || ''; 
-    const to = queryParams.get('to') || ''; 
-
-    setSearchQuery(query);
-    setSortBy(sortOption);
-    setFromDate(from);
-    setToDate(to);
-    setCurrentPage(1);  
+    setSearchQuery(queryParams.get('q') || 'trump');
+    setSortBy(queryParams.get('sortBy') || 'publishedAt');
+    setFromDate(queryParams.get('from') || '');
+    setToDate(queryParams.get('to') || '');
+    setCurrentPage(1);
   }, [location.search]);
 
-
   useEffect(() => {
-    fetchArticles(); 
-  }, [searchQuery, category, sortBy, fromDate, toDate]); 
+    fetchArticles();
+  }, [apiUrl]);
 
-  // Pagination Logic
-  const indexOfLastArticle = currentPage * articlesPerPage;
-  const indexOfFirstArticle = indexOfLastArticle - articlesPerPage;
-  const currentArticles = articles.slice(indexOfFirstArticle, indexOfLastArticle);
+  // ✅ Memoized articles for pagination efficiency
+  const paginatedArticles = useMemo(() => {
+    const startIndex = (currentPage - 1) * articlesPerPage;
+    return articles.slice(startIndex, startIndex + articlesPerPage);
+  }, [articles, currentPage, articlesPerPage]);
+
   const totalPages = Math.ceil(articles.length / articlesPerPage);
-
-  // Paginate handler
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  // Handle search form submit
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim() !== '') {
-     
-      setCurrentPage(1);  // Reset to first page on new search
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <Header />
 
       <main className="flex-grow container mx-auto p-4">
- 
-        <form onSubmit={handleSearchSubmit} className="search-form mb-6 flex items-center">
+        <form className="search-form mb-6 flex items-center">
           <input
             type="text"
             value={searchQuery}
@@ -96,12 +80,7 @@ const Home = () => {
             placeholder="Search for news..."
           />
 
-       
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="border p-2 ml-4 rounded-md"
-          >
+          <select value={category} onChange={(e) => setCategory(e.target.value)} className="border p-2 ml-4 rounded-md">
             <option value="business">Business</option>
             <option value="entertainment">Entertainment</option>
             <option value="general">General</option>
@@ -111,61 +90,34 @@ const Home = () => {
             <option value="technology">Technology</option>
           </select>
 
-       
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="border p-2 ml-4 rounded-md"
-          >
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="border p-2 ml-4 rounded-md">
             <option value="publishedAt">Published At</option>
             <option value="relevancy">Relevancy</option>
             <option value="popularity">Popularity</option>
           </select>
 
-        
-          <input
-            type="date"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            className="border p-2 ml-4 rounded-md"
-            placeholder="From Date"
-          />
-          <input
-            type="date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            className="border p-2 ml-4 rounded-md"
-            placeholder="To Date"
-          />
+          <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="border p-2 ml-4 rounded-md" />
+          <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="border p-2 ml-4 rounded-md" />
 
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 mt-2 ml-4 rounded-lg"
-          >
+          <button type="submit" className="bg-blue-500 text-white px-4 py-2 mt-2 ml-4 rounded-lg">
             Search
           </button>
         </form>
 
-    
         <div className="commonstory three_plus_two_collum mt-12">
           <h2 className="text-3xl font-bold text-center mb-8">Latest News</h2>
 
           {loading ? (
             <p className="text-center text-gray-600">Loading articles...</p>
-          ) : currentArticles.length > 0 ? (
+          ) : error ? (
+            <p className="text-center text-red-600">{error}</p>
+          ) : paginatedArticles.length > 0 ? (
             <div className="custom-grid">
-              {currentArticles.map((article, index) => (
-                <figure
-                  key={index}
-                  className={`article-item ${index === 0 ? 'bigstory' : 'smallstory'} bg-white rounded-lg shadow-md`}
-                >
+              {paginatedArticles.map((article, index) => (
+                <figure key={index} className="article-item bg-white rounded-lg shadow-md">
                   <a href={article.url} title={article.title} target="_blank" rel="noopener noreferrer">
                     <div className="imgThumb">
-                      <img
-                        className="w-full h-48 object-cover rounded-t-lg"
-                        src={article.urlToImage || 'https://via.placeholder.com/150'}
-                        alt={article.title}
-                      />
+                      <img className="w-full h-48 object-cover rounded-t-lg" src={article.urlToImage || 'https://via.placeholder.com/150'} alt={article.title} />
                     </div>
                     <div className="card_title p-4">
                       <h3 className="text-lg font-semibold">{article.title}</h3>
@@ -178,17 +130,16 @@ const Home = () => {
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-600">No articles found for "{searchQuery}"</p>
+            <p className="text-center text-gray-600">No articles found.</p>
           )}
         </div>
 
-     
         <div className="flex justify-center mt-6">
           <nav aria-label="Page navigation">
             <ul className="pagination flex flex-wrap space-x-2">
               <li>
                 <button
-                  onClick={() => paginate(currentPage - 1)}
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
                   className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50"
                 >
@@ -198,7 +149,7 @@ const Home = () => {
               {Array.from({ length: totalPages }, (_, index) => (
                 <li key={index}>
                   <button
-                    onClick={() => paginate(index + 1)}
+                    onClick={() => setCurrentPage(index + 1)}
                     className={`px-4 py-2 rounded-lg ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
                   >
                     {index + 1}
@@ -207,7 +158,7 @@ const Home = () => {
               ))}
               <li>
                 <button
-                  onClick={() => paginate(currentPage + 1)}
+                  onClick={() => setCurrentPage((prev) => (prev < totalPages ? prev + 1 : prev))}
                   disabled={currentPage === totalPages}
                   className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50"
                 >
