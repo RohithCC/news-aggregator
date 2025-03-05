@@ -5,7 +5,7 @@ import './header.scss';
 
 const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, onLanguageChange }) => {
 
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState('tesla');
   const [category, setCategory] = useState('all');
   const [language, setLanguage] = useState('all');
   const [country, setCountry] = useState('us');
