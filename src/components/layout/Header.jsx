@@ -1,79 +1,72 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import './header.scss';
+import React, { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import "./header.scss";
 
 const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, onLanguageChange }) => {
-
-  const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('all');
-  const [language, setLanguage] = useState('all');
-  const [country, setCountry] = useState('us');
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("all");
+  const [language, setLanguage] = useState("all");
+  const [country, setCountry] = useState("us");
   const [sources, setSources] = useState([]);
-  const [menuOpen, setMenuOpen] = useState(false);  
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const API_KEY = "c0a423aba69543328776600af0318700";
 
-  useEffect(() => {
-    const fetchSources = async () => {
-      try {
-        const response = await fetch(`https://newsapi.org/v2/top-headlines/sources?country=${country}&apiKey=${API_KEY}`);
-        const data = await response.json();
-        setSources(data.sources);
-      } catch (error) {
-        console.error("Error fetching sources:", error);
-      }
-    };
+  const fetchSources = useCallback(async (country) => {
+    try {
+      const response = await axios.get(
+        `https://newsapi.org/v2/top-headlines/sources?country=${country}&apiKey=${API_KEY}`
+      );
+      setSources(response.data.sources || []);
+    } catch (error) {
+      console.error("Error fetching sources:", error);
+    }
+  }, []);
 
-    fetchSources();
-  }, [country, API_KEY]);
+  useEffect(() => {
+    fetchSources(country);
+  }, [country, fetchSources]);
 
   const fetchWithFilter = async (filterType, filterValue) => {
     try {
       let url = `https://newsapi.org/v2/top-headlines/sources?country=${country}&apiKey=${API_KEY}`;
 
-      if (filterType === 'category' && filterValue !== 'all') {
+      if (filterType === "category" && filterValue !== "all") {
         url += `&category=${filterValue}`;
-      } else if (filterType === 'language' && filterValue !== 'all') {
+      } else if (filterType === "language" && filterValue !== "all") {
         url += `&language=${filterValue}`;
       }
 
-      const response = await fetch(url);
-      const data = await response.json();
-      setSources(data.sources);
+      const response = await axios.get(url);
+      setSources(response.data.sources || []);
     } catch (error) {
       console.error("Error fetching filtered sources:", error);
     }
   };
 
   const toggleMenu = () => {
-    setMenuOpen(!menuOpen);  
+    setMenuOpen(!menuOpen);
   };
 
   const handleSearch = (event) => {
-    if (event.key === 'Enter' && query.length > 0) {
+    if (event.key === "Enter" && query.length > 0) {
       onSearch(query);
-      setSearchModalOpen(false);
     }
-  };
-
-  const handleSearchFromModal = (searchQuery) => {
-    onSearch(searchQuery);
-    setQuery(searchQuery);
-    setSearchModalOpen(false);
   };
 
   const handleCategoryChange = (event) => {
     const selectedCategory = event.target.value;
     setCategory(selectedCategory);
     onCategoryChange(selectedCategory);
-    fetchWithFilter('category', selectedCategory);
+    fetchWithFilter("category", selectedCategory);
   };
 
   const handleLanguageChange = (event) => {
     const selectedLanguage = event.target.value;
     setLanguage(selectedLanguage);
     onLanguageChange(selectedLanguage);
-    fetchWithFilter('language', selectedLanguage);
+    fetchWithFilter("language", selectedLanguage);
   };
 
   const handleCountryChange = (event) => {
@@ -85,10 +78,6 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
   const handleSourceChange = (event) => {
     const selectedSource = event.target.value;
     onSourceChange(selectedSource);
-  };
-
-  const handleLogout = () => {
-    dispatch(logout());
   };
 
   return (
@@ -103,19 +92,16 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
           <span className="logo-text">Tv9</span>
         </Link>
 
-       
         <div className="hamburger-icon" onClick={toggleMenu}>
-          <span className={`hamburger-icon-bar ${menuOpen ? 'active' : ''}`}>☰</span>
+          <span className={`hamburger-icon-bar ${menuOpen ? "active" : ""}`}>☰</span>
         </div>
 
-        <nav className={`nav ${menuOpen ? 'show' : ''}`}>
+        <nav className={`nav ${menuOpen ? "show" : ""}`}>
           <ul className="nav-list">
-       
             <li className="nav-item dropdown">
               Country
               <div className="dropdown-content">
                 <select value={country} onChange={handleCountryChange}>
-                  <option value="">Country</option>
                   <option value="us">United States</option>
                   <option value="gb">United Kingdom</option>
                   <option value="de">Germany</option>
@@ -127,10 +113,7 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
               </div>
             </li>
 
-            {/* Source Dropdown with Icon */}
             <li className="nav-item dropdown">
-             
-              {/* <FcDataBackup />  */}
               Source
               <div className="dropdown-content">
                 <select onChange={handleSourceChange}>
@@ -148,8 +131,6 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
             </li>
 
             <li className="nav-item dropdown">
-            
-  
               Language
               <div className="dropdown-content">
                 <select value={language} onChange={handleLanguageChange}>
@@ -168,9 +149,7 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
               </div>
             </li>
 
-   
             <li className="nav-item dropdown">
-              
               Category
               <div className="dropdown-content">
                 <select value={category} onChange={handleCategoryChange}>
@@ -193,3 +172,4 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
 };
 
 export default Header;
+
