@@ -9,5 +9,10 @@ export default defineConfig({
   },
   build: {
     outDir: 'build',
+  },
+  server: {
+    proxy: {
+      '/api': 'https://newsapi-s7kc.onrender.com', // Update the proxy URL here
+    }
   }
 })

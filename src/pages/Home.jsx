@@ -16,26 +16,28 @@ const Home = () => {
   const [error, setError] = useState(null);
   
   const location = useLocation();
+  const API_KEY = '37811e138a2448cdb635bfde2f9dc1ef';
+
 
   const apiUrl = useMemo(() => {
-    // Build the URL for the proxy route with the necessary parameters
     if (searchQuery.trim()) {
       return `/api/articles?query=${searchQuery}&sortBy=${sortBy}&fromDate=${fromDate}&toDate=${toDate}`;
     }
     return `/api/articles?category=${category}&sortBy=${sortBy}`;
   }, [searchQuery, category, sortBy, fromDate, toDate]);
+  
 
+  
   const fetchArticles = async () => {
     setLoading(true);
     setError(null);
-
+    
     try {
       const response = await fetch(apiUrl);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch articles: ${response.statusText}`);
-      }
-
       const data = await response.json();
+      if (data.status === 'error') {
+        throw new Error(data.message);
+      }
       setArticles(data.articles || []);
     } catch (err) {
       console.error('Error fetching articles:', err);
@@ -45,7 +47,6 @@ const Home = () => {
     }
   };
 
-  // Handle URL search params and update state accordingly
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     setSearchQuery(queryParams.get('q') || 'trump');
@@ -57,8 +58,9 @@ const Home = () => {
 
   useEffect(() => {
     fetchArticles();
-  }, [apiUrl]); // Re-fetch articles when the API URL changes
+  }, [apiUrl]);
 
+  // ✅ Memoized articles for pagination efficiency
   const paginatedArticles = useMemo(() => {
     const startIndex = (currentPage - 1) * articlesPerPage;
     return articles.slice(startIndex, startIndex + articlesPerPage);
