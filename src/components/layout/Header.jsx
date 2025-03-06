@@ -17,7 +17,7 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
     const fetchSources = async () => {
       try {
         // Make sure to use the proxy
-        const response = await axios.get(`https://newsapi-s7kc.onrender.com/api/sources?country=${country}`);
+        const response = await axios.get(`/api/sources?country=${country}`);
         setSources(response.data.sources);
       } catch (error) {
         console.error("Error fetching sources:", error);
@@ -29,7 +29,7 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
 
   const fetchWithFilter = async (filterType, filterValue) => {
     try {
-      let url = `https://newsapi-s7kc.onrender.com/api/sources?country=${country}`;
+      let url = `/api/sources?country=${country}`;
 
       if (filterType === 'category' && filterValue !== 'all') {
         url += `&category=${filterValue}`;
