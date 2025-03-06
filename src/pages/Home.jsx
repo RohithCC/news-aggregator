@@ -18,14 +18,14 @@ const Home = () => {
   const location = useLocation();
   const API_KEY = '37811e138a2448cdb635bfde2f9dc1ef';
 
-  // ✅ Memoized API URL to prevent unnecessary re-renders
-  const apiUrl = useMemo(() => {
-    if (searchQuery.trim()) {
-      return `https://newsapi.org/v2/everything?q=${searchQuery}&sortBy=${sortBy}&from=${fromDate}&to=${toDate}&apiKey=${API_KEY}`;
-    } 
-    return `https://newsapi.org/v2/top-headlines?category=${category}&sortBy=${sortBy}&apiKey=${API_KEY}`;
-  }, [searchQuery, category, sortBy, fromDate, toDate]);
-
+ // ✅ Memoized API URL to prevent unnecessary re-renders
+ const apiUrl = useMemo(() => {
+  if (searchQuery.trim()) {
+    return `https://newsapi-s7kc.onrender.com/api/articles?query=${searchQuery}&sortBy=${sortBy}&fromDate=${fromDate}&toDate=${toDate}`;
+  }
+  return `https://newsapi-s7kc.onrender.com/api/articles?category=${category}&sortBy=${sortBy}`;
+}, [searchQuery, category, sortBy, fromDate, toDate]);
+  
   const fetchArticles = async () => {
     setLoading(true);
     setError(null);
@@ -71,7 +71,7 @@ const Home = () => {
       <Header />
 
       <main className="flex-grow container mx-auto p-4">
-        <form className="search-form mb-6 flex items-center">
+        <form className="search-form mb-6 flex items-center" onSubmit={(e) => e.preventDefault()}>
           <input
             type="text"
             value={searchQuery}
@@ -99,7 +99,11 @@ const Home = () => {
           <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="border p-2 ml-4 rounded-md" />
           <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="border p-2 ml-4 rounded-md" />
 
-          <button type="submit" className="bg-blue-500 text-white px-4 py-2 mt-2 ml-4 rounded-lg">
+          <button 
+            type="submit" 
+            className="bg-blue-500 text-white px-4 py-2 mt-2 ml-4 rounded-lg"
+            onClick={fetchArticles}
+          >
             Search
           </button>
         </form>
@@ -112,14 +116,18 @@ const Home = () => {
           ) : error ? (
             <p className="text-center text-red-600">{error}</p>
           ) : paginatedArticles.length > 0 ? (
-            <div className="custom-grid">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {paginatedArticles.map((article, index) => (
-                <figure key={index} className="article-item bg-white rounded-lg shadow-md">
+                <figure key={index} className="article-item bg-white rounded-lg shadow-md overflow-hidden">
                   <a href={article.url} title={article.title} target="_blank" rel="noopener noreferrer">
                     <div className="imgThumb">
-                      <img className="w-full h-48 object-cover rounded-t-lg" src={article.urlToImage || 'https://via.placeholder.com/150'} alt={article.title} />
+                      <img 
+                        className="w-full h-48 object-cover" 
+                        src={article.urlToImage || 'https://via.placeholder.com/150'} 
+                        alt={article.title} 
+                      />
                     </div>
-                    <div className="card_title p-4">
+                    <div className="p-4">
                       <h3 className="text-lg font-semibold">{article.title}</h3>
                       <p className="text-sm text-gray-500">{article.author ? `By: ${article.author}` : 'Author: Unknown'}</p>
                       <p className="text-sm text-gray-500">{article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : 'Published on: Unknown'}</p>
@@ -134,6 +142,7 @@ const Home = () => {
           )}
         </div>
 
+        {/* Pagination */}
         <div className="flex justify-center mt-6">
           <nav aria-label="Page navigation">
             <ul className="pagination flex flex-wrap space-x-2">
