@@ -18,13 +18,15 @@ const Home = () => {
   const location = useLocation();
   const API_KEY = '37811e138a2448cdb635bfde2f9dc1ef';
 
- // ✅ Memoized API URL to prevent unnecessary re-renders
- const apiUrl = useMemo(() => {
-  if (searchQuery.trim()) {
-    return `https://newsapi-s7kc.onrender.com/api/articles?query=${searchQuery}&sortBy=${sortBy}&fromDate=${fromDate}&toDate=${toDate}`;
-  }
-  return `https://newsapi-s7kc.onrender.com/api/articles?category=${category}&sortBy=${sortBy}`;
-}, [searchQuery, category, sortBy, fromDate, toDate]);
+
+  
+  const apiUrl = useMemo(() => {
+    if (searchQuery.trim()) {
+      return `/api/articles?query=${searchQuery}&sortBy=${sortBy}&fromDate=${fromDate}&toDate=${toDate}`;
+    }
+    return `/api/articles?category=${category}&sortBy=${sortBy}`;
+  }, [searchQuery, category, sortBy, fromDate, toDate]);
+  
   
   const fetchArticles = async () => {
     setLoading(true);
