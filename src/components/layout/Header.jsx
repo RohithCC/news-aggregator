@@ -1,36 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from "axios";
+import axios from 'axios';
 import './header.scss';
 
 const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, onLanguageChange }) => {
-
   const [query, setQuery] = useState('tesla');
   const [category, setCategory] = useState('all');
   const [language, setLanguage] = useState('all');
   const [country, setCountry] = useState('us');
   const [sources, setSources] = useState([]);
-  const [menuOpen, setMenuOpen] = useState(false);  
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const API_KEY = "c0a423aba69543328776600af0318700";
 
+
+
+  // Fetch sources when the country changes
   useEffect(() => {
     const fetchSources = async () => {
       try {
-        const response = await axios(`https://newsapi.org/v2/top-headlines/sources?country=${country}&apiKey=${API_KEY}`);
-        const data = await response.json();
-        setSources(data.sources);
+        const response = await axios.get(`/api/sources?country=${country}`);
+        setSources(response.data.sources); // Directly access the data from the axios response
       } catch (error) {
         console.error("Error fetching sources:", error);
       }
     };
 
     fetchSources();
-  }, [country, API_KEY]);
+  }, [country]);
 
+  // Fetch filtered sources based on category or language
   const fetchWithFilter = async (filterType, filterValue) => {
     try {
-      let url = `https://newsapi.org/v2/top-headlines/sources?country=${country}&apiKey=${API_KEY}`;
+      let url = `/api/sources?country=${country}`;
 
       if (filterType === 'category' && filterValue !== 'all') {
         url += `&category=${filterValue}`;
@@ -38,19 +39,16 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
         url += `&language=${filterValue}`;
       }
 
-      const response = await axios(url);
-      const data = await response.json();
-      setSources(data.sources);
+      const response = await axios.get(url);
+      setSources(response.data.sources);
     } catch (error) {
       console.error("Error fetching filtered sources:", error);
     }
   };
 
   const toggleMenu = () => {
-    setMenuOpen(!menuOpen);  
+    setMenuOpen(!menuOpen);
   };
-
-
 
   const handleCategoryChange = (event) => {
     const selectedCategory = event.target.value;
@@ -77,9 +75,6 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
     onSourceChange(selectedSource);
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-  };
 
   return (
     <header className="header">
@@ -93,19 +88,16 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
           <span className="logo-text">Tv9</span>
         </Link>
 
-       
         <div className="hamburger-icon" onClick={toggleMenu}>
           <span className={`hamburger-icon-bar ${menuOpen ? 'active' : ''}`}>☰</span>
         </div>
 
         <nav className={`nav ${menuOpen ? 'show' : ''}`}>
           <ul className="nav-list">
-       
             <li className="nav-item dropdown">
               Country
               <div className="dropdown-content">
                 <select value={country} onChange={handleCountryChange}>
-                  <option value="">Country</option>
                   <option value="us">United States</option>
                   <option value="gb">United Kingdom</option>
                   <option value="de">Germany</option>
@@ -119,8 +111,6 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
 
             {/* Source Dropdown with Icon */}
             <li className="nav-item dropdown">
-             
-              {/* <FcDataBackup />  */}
               Source
               <div className="dropdown-content">
                 <select onChange={handleSourceChange}>
@@ -138,8 +128,6 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
             </li>
 
             <li className="nav-item dropdown">
-            
-  
               Language
               <div className="dropdown-content">
                 <select value={language} onChange={handleLanguageChange}>
@@ -158,9 +146,7 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
               </div>
             </li>
 
-   
             <li className="nav-item dropdown">
-              
               Category
               <div className="dropdown-content">
                 <select value={category} onChange={handleCategoryChange}>
