@@ -12,11 +12,12 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
   const [sources, setSources] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);  
 
+  const API_KEY = "c0a423aba69543328776600af0318700";
 
   useEffect(() => {
     const fetchSources = async () => {
       try {
-        const response = await axios(`/api/sources?country=${country}`);
+        const response = await axios(`https://newsapi.org/v2/top-headlines/sources?country=${country}&apiKey=${API_KEY}`);
         const data = await response.json();
         setSources(data.sources);
       } catch (error) {
@@ -29,7 +30,7 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
 
   const fetchWithFilter = async (filterType, filterValue) => {
     try {
-      let url = `/api/sources?country=${country}`;
+      let url = `https://newsapi.org/v2/top-headlines/sources?country=${country}&apiKey=${API_KEY}`;
 
       if (filterType === 'category' && filterValue !== 'all') {
         url += `&category=${filterValue}`;
@@ -48,8 +49,6 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);  
   };
-
-
 
 
   const handleCategoryChange = (event) => {
@@ -77,6 +76,9 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
     onSourceChange(selectedSource);
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+  };
 
   return (
     <header className="header">
