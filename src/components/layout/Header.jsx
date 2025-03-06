@@ -4,22 +4,21 @@ import axios from 'axios';
 import './header.scss';
 
 const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, onLanguageChange }) => {
-  const [query, setQuery] = useState('tesla');
+  const [query, setQuery] = useState('trumph');
   const [category, setCategory] = useState('all');
   const [language, setLanguage] = useState('all');
   const [country, setCountry] = useState('us');
   const [sources, setSources] = useState([]);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);  
 
+  const API_KEY = "37811e138a2448cdb635bfde2f9dc1ef";
 
-
-
-  // Fetch sources when the country changes
   useEffect(() => {
     const fetchSources = async () => {
       try {
-        const response = await axios.get(`/api/sources?country=${country}`);
-        setSources(response.data.sources); // Directly access the data from the axios response
+        // Make sure to use the proxy
+        const response = await axios.get(`https://newsapi-s7kc.onrender.com/api/sources?country=${country}`);
+        setSources(response.data.sources);
       } catch (error) {
         console.error("Error fetching sources:", error);
       }
@@ -28,10 +27,9 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
     fetchSources();
   }, [country]);
 
-  // Fetch filtered sources based on category or language
   const fetchWithFilter = async (filterType, filterValue) => {
     try {
-      let url = `/api/sources?country=${country}`;
+      let url = `https://newsapi-s7kc.onrender.com/api/sources?country=${country}`;
 
       if (filterType === 'category' && filterValue !== 'all') {
         url += `&category=${filterValue}`;
@@ -47,7 +45,7 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
   };
 
   const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
+    setMenuOpen(!menuOpen);  
   };
 
   const handleCategoryChange = (event) => {
@@ -75,7 +73,6 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
     onSourceChange(selectedSource);
   };
 
-
   return (
     <header className="header">
       <div className="header-container">
@@ -98,6 +95,7 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
               Country
               <div className="dropdown-content">
                 <select value={country} onChange={handleCountryChange}>
+                  <option value="">Country</option>
                   <option value="us">United States</option>
                   <option value="gb">United Kingdom</option>
                   <option value="de">Germany</option>
@@ -109,7 +107,6 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
               </div>
             </li>
 
-            {/* Source Dropdown with Icon */}
             <li className="nav-item dropdown">
               Source
               <div className="dropdown-content">
@@ -127,40 +124,7 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
               </div>
             </li>
 
-            <li className="nav-item dropdown">
-              Language
-              <div className="dropdown-content">
-                <select value={language} onChange={handleLanguageChange}>
-                  <option value="all">Languages</option>
-                  <option value="ar">Arabic</option>
-                  <option value="de">German</option>
-                  <option value="en">English</option>
-                  <option value="es">Spanish</option>
-                  <option value="fr">French</option>
-                  <option value="it">Italian</option>
-                  <option value="nl">Dutch</option>
-                  <option value="pt">Portuguese</option>
-                  <option value="ru">Russian</option>
-                  <option value="zh">Chinese</option>
-                </select>
-              </div>
-            </li>
-
-            <li className="nav-item dropdown">
-              Category
-              <div className="dropdown-content">
-                <select value={category} onChange={handleCategoryChange}>
-                  <option value="all">Categories</option>
-                  <option value="business">Business</option>
-                  <option value="entertainment">Entertainment</option>
-                  <option value="general">General</option>
-                  <option value="health">Health</option>
-                  <option value="science">Science</option>
-                  <option value="sports">Sports</option>
-                  <option value="technology">Technology</option>
-                </select>
-              </div>
-            </li>
+            {/* Additional dropdowns for Language and Category */}
           </ul>
         </nav>
       </div>
