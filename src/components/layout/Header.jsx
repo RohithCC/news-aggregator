@@ -26,7 +26,7 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
     };
 
     fetchSources();
-  }, [country]);
+  }, [country, API_KEY]);
 
   const fetchWithFilter = async (filterType, filterValue) => {
     try {
@@ -49,6 +49,7 @@ const Header = ({ onSearch, onSourceChange, onCountryChange, onCategoryChange, o
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);  
   };
+
 
 
   const handleCategoryChange = (event) => {
